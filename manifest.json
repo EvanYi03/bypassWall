@@ -1,0 +1,36 @@
+{
+  "manifest_version": 2,
+
+  "name": "Bypass the Paywall",
+  "description": "This will allow you to view news articles on a list of websites without a paywall",
+  "version": "1.0",
+
+  "icons": {
+    "48": "icon.png"
+  },
+
+  "permissions": [
+    "<all_urls>",
+    "tabs",
+    "webNavigation",
+    "cookies",
+    "storage"
+  ],
+
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+
+ "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["jquery-3.2.1.min.js", "content.js"]
+    }
+  ],
+
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  }
+}
