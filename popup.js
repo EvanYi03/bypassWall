@@ -1,16 +1,72 @@
 document.addEventListener('DOMContentLoaded', documentEvents  , false);
 
+// Update the relevant fields with the new data.
+const setDOMInfo = info => {
+  chrome.storage.local.get(['urlsArray'], function(result) {
+    document.getElementById('urls').textContent = JSON.stringify(result['urlsArray']);
+  });
+};
+
+// Once the DOM is ready...
+window.addEventListener('DOMContentLoaded', () => {
+  // ...query for the active tab...
+  chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  }, tabs => {
+    // ...and send a request for the DOM info...
+    chrome.tabs.sendMessage(
+        tabs[0].id,
+        {from: 'popup', subject: 'DOMInfo'},
+        // ...also specifying a callback to be called 
+        //    from the receiving end (content script).
+        setDOMInfo);
+  });
+});
+
+function stripTrailingSlash(str) {
+  if(str.substr(-1) === '/') {
+      return str.substr(0, str.length - 1);
+  }
+  return str;
+}
+
 function myAction(input) { 
     console.log('input value is : ' + input.value);
     if (input.value == ''){
       alert('Empty string entered');
       return;
     } 
-    if (!input.value.startsWith('http')){
+    if (!input.value.startsWith('http://') && !input.value.startsWith('https://')){
       alert('No protocol specified');
       return;
     }
-    alert("The entered data is : " + input.value);
+    //alert("The entered url : " + input.value);
+
+    //retrieve stored urls array
+    var newArray = []
+    chrome.storage.local.get(['urlsArray'], function(result) {
+      //alert('Value currently is ' + JSON.stringify(result));
+      var storedArray = result['urlsArray'];
+      for (i in storedArray){
+        //alert('pushing ' + storedArray[i] + 'to storage.');
+        newArray.push(storedArray[i]);
+      }
+
+      //push item to array if not already included
+      if (!newArray.includes(stripTrailingSlash(input.value))){
+        //alert('pushing ' + input.value + 'to new array');
+        newArray.push(stripTrailingSlash(input.value));
+      }
+
+      //alert('pushing ' + input.value + 'to new array');
+      alert('stored array will be ' + JSON.stringify(newArray));
+
+      chrome.storage.local.set({urlsArray: newArray}, function() {
+      });
+
+  });
+  
 }
 
 function documentEvents() {    
