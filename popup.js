@@ -36,7 +36,7 @@ function stripTrailingSlash(str) {
   return str;
 }
 
-function myAction(input) { 
+function addUrl(input) { 
     console.log('input value is : ' + input.value);
     if (input.value == ''){
       alert('Empty string entered');
@@ -65,7 +65,7 @@ function myAction(input) {
       }
 
       //alert('pushing ' + input.value + 'to new array');
-      alert('stored array will be ' + JSON.stringify(newArray));
+      //alert('stored array will be ' + JSON.stringify(newArray));
 
       chrome.storage.local.set({urlsArray: newArray}, function() {
       });
@@ -74,8 +74,16 @@ function myAction(input) {
   
 }
 
+function removeUrls(input){
+  alert(JSON.stringify(input));
+}
+
 function documentEvents() {    
-  document.getElementById('submit_button').addEventListener('click', 
-    function() { myAction(document.getElementById('url_textbox'));
+    document.getElementById('submit_button').addEventListener('click', 
+      function() { addUrl(document.getElementById('url_textbox'));
+    });
+
+    document.getElementById('removeForm').addEventListener('click', 
+    function() { removeUrls(document.getElementById('removeForm'));
   });
 }
