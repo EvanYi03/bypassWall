@@ -4,6 +4,11 @@ document.addEventListener('DOMContentLoaded', documentEvents  , false);
 const setDOMInfo = info => {
   chrome.storage.local.get(['urlsArray'], function(result) {
     document.getElementById('urls').textContent = JSON.stringify(result['urlsArray']);
+    for (i in result['urlsArray']){
+      var thisUrl = result['urlsArray'][i];
+      document.getElementById("removeForm").innerHTML += '<input type="checkbox" id="url_' + i + '"> <label for="url_' + i + '">' + thisUrl + '</label><br>'; 
+    }
+    document.getElementById("removeForm").innerHTML += '<br><input type="submit" value="Remove these Urls">'
   });
 };
 
