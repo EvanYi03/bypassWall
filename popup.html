@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>Wonderful Extension</title>
-    <script src="popup.js"></script>     
+    <script src="popup.js"></script>
   </head>
   <body>   
 
@@ -12,7 +12,22 @@
         <br>
         <br>            
          <button id="submit_button" type="button">Add Url</button>
-    </div>      
-
+    </div>
+    <span id="urls" hidden></span>
+    <div>
+      <form id="removeForm" method="post">
+      </form>
+    </div>
   </body>
+  <style>
+    body {
+      height: 300px;
+      width: 200px;
+
+    }
+    html {
+      height: 300px;
+      width: 200px;
+    }
+    </style>
 </html>
