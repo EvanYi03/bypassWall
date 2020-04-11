@@ -6,9 +6,9 @@ const setDOMInfo = info => {
     document.getElementById('urls').textContent = JSON.stringify(result['urlsArray']);
     for (i in result['urlsArray']){
       var thisUrl = result['urlsArray'][i];
-      document.getElementById("removeForm").innerHTML += '<input type="checkbox" id="url_' + i + '"> <label for="url_' + i + '">' + thisUrl + '</label><br>'; 
+      document.getElementById("removeForm").innerHTML += '<input type="checkbox" value="' + thisUrl + '" name="url_' + i + '"> <label for="url_' + i + '">' + thisUrl + '</label><br>'; 
     }
-    document.getElementById("removeForm").innerHTML += '<br><input type="submit" value="Remove these Urls">'
+    document.getElementById("removeForm").innerHTML += '<br><input id="remove_urls_submit" type="submit" value="Remove these Urls">'
   });
 };
 
@@ -46,36 +46,47 @@ function addUrl(input) {
       alert('No protocol specified');
       return;
     }
-    //alert("The entered url : " + input.value);
 
     //retrieve stored urls array
     var newArray = []
     chrome.storage.local.get(['urlsArray'], function(result) {
-      //alert('Value currently is ' + JSON.stringify(result));
       var storedArray = result['urlsArray'];
       for (i in storedArray){
-        //alert('pushing ' + storedArray[i] + 'to storage.');
         newArray.push(storedArray[i]);
       }
 
       //push item to array if not already included
       if (!newArray.includes(stripTrailingSlash(input.value))){
-        //alert('pushing ' + input.value + 'to new array');
         newArray.push(stripTrailingSlash(input.value));
       }
 
-      //alert('pushing ' + input.value + 'to new array');
-      //alert('stored array will be ' + JSON.stringify(newArray));
-
       chrome.storage.local.set({urlsArray: newArray}, function() {
+        //refresh the popup after writing to storage
+        window.location.href="popup.html";
       });
 
   });
   
 }
 
+function removeStoredUrl(url){
+  chrome.storage.local.get(['urlsArray'], function(result) {
+    var storedArray = result['urlsArray'];
+    storedArray.splice(storedArray.indexOf(url), 1);
+    chrome.storage.local.set({urlsArray: storedArray}, function() {
+    });
+  });
+}
+
 function removeUrls(input){
-  alert(JSON.stringify(input));
+  var deleteArray = [];
+  for (i in Object.keys(input)){
+    if (input[i].checked) deleteArray.push(input[i].value);
+  }
+  for (i in deleteArray){
+    var deleteUrl = deleteArray[i];
+    removeStoredUrl(deleteUrl);
+  }
 }
 
 function documentEvents() {    
@@ -83,7 +94,7 @@ function documentEvents() {
       function() { addUrl(document.getElementById('url_textbox'));
     });
 
-    document.getElementById('removeForm').addEventListener('click', 
+    document.getElementById('removeForm').addEventListener('submit', 
     function() { removeUrls(document.getElementById('removeForm'));
   });
 }
