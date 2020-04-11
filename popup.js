@@ -37,7 +37,6 @@ function stripTrailingSlash(str) {
 }
 
 function addUrl(input) { 
-    console.log('input value is : ' + input.value);
     if (input.value == ''){
       alert('Empty string entered');
       return;
