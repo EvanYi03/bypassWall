@@ -1,27 +1,25 @@
 $(document).ready(function () {
 
-  //send current page to background.js
-  url = window.location.href;
-  chrome.runtime.sendMessage({greeting: url}, function(response) {
-  });
-
   let urlsArray = [];
   chrome.storage.local.get(['urlsArray'], function(result) {
-    //add a "." to any page that is in the stored list of urls
-    urlsArray = result['urlsArray'];
-    console.log('urls array', urlsArray);
 
-    getAllCookies();
+    try{
+      // set current page url to send to background.js
+      const thisUrl = window.location.href;
+      const thisProtocol = window.location.protocol;
+      const thisWwwHost = window.location.host;
+      const thisHost = thisWwwHost.split("www.")[1];
+      const thisOrigPath = thisProtocol + "//" + thisWwwHost;
 
-    //  for (thisUrl in urlsArray){
-    //   var currentLocation = location.href.toString();
-    //   if (currentLocation.startsWith(urlsArray[thisUrl]) && !(currentLocation.startsWith(urlsArray[thisUrl] + "."))){
-    //     var baseUrl  = urlsArray[thisUrl];
-    //     var splitUrl = currentLocation.split(baseUrl);
-    //     var leftover = splitUrl[1];
-    //     location.replace(baseUrl + "." + leftover);
-    //   }
-    // }
+      // add a "." to any page that is in the stored list of urls
+      urlsArray = result['urlsArray'];
+
+      // send urls array to background.js
+      chrome.runtime.sendMessage({storedUrlsArray : urlsArray, currentUrl : thisUrl, fullOrigPath : thisOrigPath, fullWwwHost : thisWwwHost, plainHost : thisHost}, function(response) {
+      });
+    }catch(error){
+      throw error;
+    }
   });
 });
 
