@@ -1,5 +1,6 @@
 const getCookiesArray = async (thisUrl) => {
     return new Promise(function(resolve,reject){
+        // MAY HAVE TO MAKE THIS BROADER
         chrome.cookies.getAll({domain: thisUrl}, function(cookies) {
             resolve(cookies);
         });
@@ -45,25 +46,26 @@ chrome.runtime.onMessage.addListener(async function(message ,sender, sendRespons
     }
 
     const clearCookies = async (cookiesMap) => {
-        
-        // make list of cookie names for use by the cookies' API
-        let cookiesNames = new Array();
-        console.log('cookiesmap', cookiesMap);
-        console.log('this cookiesMap keys', cookiesMap.keys());
 
         // loop through map of cookies urls, and if their array is not empty, add to list
-
         for (let url of cookiesMap.keys()){
 
             let thisCookieArray = cookiesMap.get(url);
-            
+
             if (thisCookieArray.length != 0) {
-                // add cookie to cookiesNames list
-                for (let cookie of thisCookieArray){
-                    cookiesNames.push(cookie.name);
+                for await (let cookie of thisCookieArray){
+                    //cookiesDomains.push(cookie.domain)
+
+                    // delete cookies with this domain
+                    try {
+                        const theseCookies = await getCookiesArray(url);
+                        console.log('these cookies', theseCookies);
+                        chrome.cookies.remove({"url": "https://" + url, "name": cookie.name}, function(deleted_cookie) { console.log("Deleted cookie:", deleted_cookie); });
+                    }catch(error){
+                        console.log("Error deleting cookie:", error);
+                    }
                 }
             }
-            console.log('cookiesNames:', cookiesNames);
         }
     }
 
