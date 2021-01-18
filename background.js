@@ -59,7 +59,6 @@ chrome.runtime.onMessage.addListener(async function(message ,sender, sendRespons
                     // delete cookies with this domain
                     try {
                         const theseCookies = await getCookiesArray(url);
-                        console.log('these cookies', theseCookies);
                         chrome.cookies.remove({"url": "https://" + url, "name": cookie.name}, function(deleted_cookie) { console.log("Deleted cookie:", deleted_cookie); });
                     }catch(error){
                         console.log("Error deleting cookie:", error);
