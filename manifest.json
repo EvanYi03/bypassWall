@@ -3,7 +3,7 @@
 
   "name": "Bypass the Paywall",
   "description": "This will allow you to view news articles on a list of websites of your choosing without a paywall",
-  "version": "2.0",
+  "version": "2.1",
 
   "icons": {
     "48": "icon.png"

@@ -114,6 +114,7 @@ chrome.runtime.onMessage.addListener(async function(message ,sender, sendRespons
         if (!arraysAreEmpty(cookiesArray)){
             
             let nonEmpty = returnNonEmptyArrays(cookiesArray);
+            console.log('nonEmpty', nonEmpty);
             for (let array of nonEmpty){
                 for (let cookie of array){
                     // add any domains that were not included originally

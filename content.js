@@ -1,7 +1,10 @@
 $(document).ready(function () {
 
   let urlsArray = [];
-  chrome.storage.local.get(['urlsArray'], function(result) {
+  chrome.storage.local.get(["urlsArray", "deleteStorage"], function(result) {
+    console.log("result", result);
+    const deleteStorage = result.deleteStorage;
+    console.log('del stor ', deleteStorage);
 
     try{
       // set current page url to send to background.js

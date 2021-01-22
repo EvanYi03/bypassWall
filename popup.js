@@ -1,11 +1,15 @@
-document.addEventListener('DOMContentLoaded', documentEvents  , false);
+document.addEventListener("DOMContentLoaded", documentEvents  , false);
 
 // Update the relevant fields with the new data.
 const setDOMInfo = info => {
-  chrome.storage.local.get(['urlsArray'], function(result) {
-    document.getElementById('urls').textContent = JSON.stringify(result['urlsArray']);
-    for (i in result['urlsArray']){
-      var thisUrl = result['urlsArray'][i];
+  chrome.storage.local.get(["urlsArray", "deleteStorage"], function(result) {
+    
+    const deleteStorage = result.deleteStorage;
+    document.getElementById("deleteStorageId").checked = deleteStorage;
+
+    document.getElementById('urls').textContent = JSON.stringify(result["urlsArray"]);
+    for (i in result["urlsArray"]){
+      var thisUrl = result["urlsArray"][i];
       document.getElementById("removeForm").innerHTML += '<input type="checkbox" value="' + thisUrl + '" name="url_' + i + '"> <label for="url_' + i + '">' + thisUrl + '</label><br>'; 
     }
     document.getElementById("removeForm").innerHTML += '<br><input id="remove_urls_submit" type="submit" value="Remove these Urls">'
@@ -13,7 +17,7 @@ const setDOMInfo = info => {
 };
 
 // Once the DOM is ready...
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener("DOMContentLoaded", () => {
   // ...query for the active tab...
   chrome.tabs.query({
     active: true,
@@ -22,7 +26,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // ...and send a request for the DOM info...
     chrome.tabs.sendMessage(
         tabs[0].id,
-        {from: 'popup', subject: 'DOMInfo'},
+        {from: "popup", subject: "DOMInfo"},
         // ...also specifying a callback to be called 
         //    from the receiving end (content script).
         setDOMInfo);
@@ -38,18 +42,18 @@ function stripTrailingSlash(str) {
 
 function addUrl(input) { 
     if (input.value == ''){
-      alert('Empty string entered');
+      alert("Empty string entered");
       return;
     } 
-    if (!input.value.startsWith('http://') && !input.value.startsWith('https://')){
-      alert('No protocol specified');
+    if (!input.value.startsWith("http://") && !input.value.startsWith("https://")){
+      alert("No protocol specified");
       return;
     }
 
     //retrieve stored urls array
     var newArray = []
-    chrome.storage.local.get(['urlsArray'], function(result) {
-      var storedArray = result['urlsArray'];
+    chrome.storage.local.get(["urlsArray"], function(result) {
+      var storedArray = result["urlsArray"];
       for (i in storedArray){
         newArray.push(storedArray[i]);
       }
@@ -63,14 +67,12 @@ function addUrl(input) {
         //refresh the popup after writing to storage
         window.location.href="popup.html";
       });
-
   });
-  
 }
 
 function removeStoredUrl(url){
-  chrome.storage.local.get(['urlsArray'], function(result) {
-    var storedArray = result['urlsArray'];
+  chrome.storage.local.get(["urlsArray"], function(result) {
+    var storedArray = result["urlsArray"];
     storedArray.splice(storedArray.indexOf(url), 1);
     chrome.storage.local.set({urlsArray: storedArray}, function() {
     });
@@ -89,11 +91,19 @@ function removeUrls(input){
 }
 
 function documentEvents() {    
-    document.getElementById('submit_button').addEventListener('click', 
-      function() { addUrl(document.getElementById('url_textbox'));
+    document.getElementById("submit_button").addEventListener("click", 
+      function() { addUrl(document.getElementById("url_textbox"));
     });
 
-    document.getElementById('removeForm').addEventListener('submit', 
-    function() { removeUrls(document.getElementById('removeForm'));
-  });
+    document.getElementById("removeForm").addEventListener("submit", 
+    function() { removeUrls(document.getElementById("removeForm"));
+    });
+
+    document.getElementById("deleteStorageId").addEventListener("change", 
+    function() { 
+
+      let isChecked = document.getElementById("deleteStorageId").checked;
+      chrome.storage.local.set({"deleteStorage": isChecked}, function(res) {
+      })
+    });
 }
