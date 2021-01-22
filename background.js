@@ -30,11 +30,12 @@ chrome.runtime.onMessage.addListener(async function(message ,sender, sendRespons
                 const theseDotCookies = await getCookiesArray("." + thisUrl);
                 //these seem common, so get rid of them too while we're in there
                 const dotGoogleCookies = await getCookiesArray(".google.com");
+                //console.log('google cookies', dotGoogleCookies);
                 theseCookies.concat(theseDotCookies);
-                theseCookies.concat(dotGoogleCookies);
                 //console.log('these cookies', theseCookies);
                 promisesArray.push(theseCookies);
                 allCookiesMap.set(thisUrl, theseCookies);
+                allCookiesMap.set(".google.com", dotGoogleCookies);
 
                 //THERE'S LIKELY A BETTER WAY TO DO THIS
                 if (promisesArray.length == thisArray.length){
@@ -69,9 +70,46 @@ chrome.runtime.onMessage.addListener(async function(message ,sender, sendRespons
         }
     }
 
-    while (true){
+    const arraysAreEmpty = (containingArray) => {
+        // for given array, if all sub-arrays are empty, return true
+        for (let array of containingArray){
+            if (array.length != 0){
+                //console.log('returning for array', array);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    const returnNonEmptyArrays = (containingArray) => {
+        // for given array, return an array containing any non-empty arrays
+        let nonEmptyArrays = new Array();
+        for (let array of containingArray){
+            if (array.length != 0){
+                nonEmptyArrays.push(array);
+            }
+        }
+        return nonEmptyArrays;
+    }
+
+    const getUniqueArray = (thisArray) => {
+        // return a unique-ified array for a given array
+        var temp = {};
+        for (var i = 0; i < thisArray.length; i++)
+            temp[thisArray[i]] = true;
+        var r = [];
+        for (var k in temp)
+            r.push(k);
+        return r;
+    }
+
+
+    // delay
+    setInterval(async () => {
+        domainsArray = getUniqueArray(domainsArray);
+        // construct array of arrays containing cookies for each domain
         let cookiesArray = new Array();
-        for await (let domain of  domainsArray){
+        for await (let domain of domainsArray){
             //console.log('domain:', domain);
             cookiesArray.push(await getCookiesArray(domain));
             //console.log('cookies array', cookiesArray);
@@ -81,11 +119,20 @@ chrome.runtime.onMessage.addListener(async function(message ,sender, sendRespons
         // console.log('current', currentUrl);
         //console.log('cookies array', cookiesArray);
         //console.log('cookies array len', cookiesArray.length);
-        if (cookiesArray.length > 0){
+        if (!arraysAreEmpty(cookiesArray)){
             //console.log('Processing Now', cookiesArray);
+            let nonEmpty = returnNonEmptyArrays(cookiesArray);
+            for (let array of nonEmpty){
+                for (let cookie of array){
+                    // add any domains that were not included originally
+                    // from non-empty domains array
+                    domainsArray.push(cookie.domain);
+                }
+            }
+            //console.log('domains array', domainsArray);
             processArray(domainsArray).then((res) => {
                 clearCookies(res);
             })
         }
-    }
+    }, 500);
 })
