@@ -23,15 +23,14 @@ chrome.runtime.onMessage.addListener(async function(message ,sender, sendRespons
 
         let promisesArray = new Array();
         let allCookiesMap = new Map();
-
-        const getArrayAsync = async (thisUrl) => {  
-            return await getCookiesArray(thisUrl);
-        }
         
         try {
     
             for (const thisUrl of thisArray) {
                 const theseCookies = await getCookiesArray(thisUrl);
+                const theseDotCookies = await getCookiesArray("." + thisUrl);
+                theseCookies.concat(theseDotCookies);
+                console.log('these cookies', theseCookies);
                 promisesArray.push(theseCookies);
                 allCookiesMap.set(thisUrl, theseCookies);
 
@@ -58,8 +57,13 @@ chrome.runtime.onMessage.addListener(async function(message ,sender, sendRespons
 
                     // delete cookies with this domain
                     try {
-                        const theseCookies = await getCookiesArray(url);
-                        chrome.cookies.remove({"url": "https://" + url, "name": cookie.name}, function(deleted_cookie) { console.log("Deleted cookie:", deleted_cookie); });
+                        let theseCookies = await getCookiesArray(url);
+                        while (theseCookies.length > 0){
+                            theseCookies = await getCookiesArray(url);
+                            console.log('in while', theseCookies);
+                            chrome.cookies.remove({"url": "https://" + url, "name": cookie.name}, function(deleted_cookie) { console.log("Deleted cookie:", deleted_cookie); });
+                        }
+                        //chrome.cookies.remove({"url": "https://" + url, "name": cookie.name}, function(deleted_cookie) { console.log("Deleted cookie:", deleted_cookie); });
                     }catch(error){
                         console.log("Error deleting cookie:", error);
                     }
