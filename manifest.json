@@ -2,8 +2,8 @@
   "manifest_version": 2,
 
   "name": "Bypass the Paywall",
-  "description": "This will allow you to view news articles on a list of websites without a paywall",
-  "version": "1.0",
+  "description": "This will allow you to view news articles on a list of websites of your choosing without a paywall",
+  "version": "2.0",
 
   "icons": {
     "48": "icon.png"
