@@ -30,9 +30,7 @@ chrome.runtime.onMessage.addListener(async function(message ,sender, sendRespons
                 const theseDotCookies = await getCookiesArray("." + thisUrl);
                 //these seem common, so get rid of them too while we're in there
                 const dotGoogleCookies = await getCookiesArray(".google.com");
-                //console.log('google cookies', dotGoogleCookies);
-                theseCookies.concat(theseDotCookies);
-                //console.log('these cookies', theseCookies);
+                theseCookies.concat(theseDotCookies);                
                 promisesArray.push(theseCookies);
                 allCookiesMap.set(thisUrl, theseCookies);
                 allCookiesMap.set(".google.com", dotGoogleCookies);
@@ -110,17 +108,11 @@ chrome.runtime.onMessage.addListener(async function(message ,sender, sendRespons
         // construct array of arrays containing cookies for each domain
         let cookiesArray = new Array();
         for await (let domain of domainsArray){
-            //console.log('domain:', domain);
             cookiesArray.push(await getCookiesArray(domain));
-            //console.log('cookies array', cookiesArray);
-            
         }
-        // let cookiesArray = await getCookiesArray(currentUrl);
-        // console.log('current', currentUrl);
-        //console.log('cookies array', cookiesArray);
-        //console.log('cookies array len', cookiesArray.length);
+        
         if (!arraysAreEmpty(cookiesArray)){
-            //console.log('Processing Now', cookiesArray);
+            
             let nonEmpty = returnNonEmptyArrays(cookiesArray);
             for (let array of nonEmpty){
                 for (let cookie of array){
@@ -129,7 +121,6 @@ chrome.runtime.onMessage.addListener(async function(message ,sender, sendRespons
                     domainsArray.push(cookie.domain);
                 }
             }
-            //console.log('domains array', domainsArray);
             processArray(domainsArray).then((res) => {
                 clearCookies(res);
             })
